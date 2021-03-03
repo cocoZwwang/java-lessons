@@ -15,7 +15,7 @@ public class DBConnectionManager {
 
     public static final String CREATE_USERS_TABLE_DDL_SQL = "CREATE TABLE users(" +
             "id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), " +
-            "name VARCHAR(16) NOT NULL, " +
+            "name VARCHAR(32) NOT NULL, " +
             "password VARCHAR(64) NOT NULL, " +
             "email VARCHAR(64) NOT NULL, " +
             "phoneNumber VARCHAR(64) NOT NULL" +
@@ -61,12 +61,12 @@ public class DBConnectionManager {
             Statement statement = connection.createStatement();
             try {
                 // 删除 users 表
-                System.out.println(statement.execute(DROP_USERS_TABLE_DDL_SQL)); // false
+                statement.execute(DROP_USERS_TABLE_DDL_SQL);
             } catch (Throwable throwable) {
                 logger.log(Level.SEVERE, throwable.getMessage());
             }
             // 创建 users 表
-            System.out.println(statement.execute(CREATE_USERS_TABLE_DDL_SQL)); // false
+            statement.execute(CREATE_USERS_TABLE_DDL_SQL);
 //            System.out.println(statement.executeUpdate(INSERT_USER_DML_SQL));  // 5
         } catch (Throwable throwable) {
             logger.log(Level.SEVERE, throwable.getMessage());

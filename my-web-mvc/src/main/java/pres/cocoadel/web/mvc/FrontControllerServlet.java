@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import pres.cocoadel.web.mvc.controller.Controller;
 import pres.cocoadel.web.mvc.controller.PageController;
 import pres.cocoadel.web.mvc.controller.RestController;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -29,27 +30,27 @@ public class FrontControllerServlet extends HttpServlet {
     }
 
     private void initHandlerMethods() {
-       ServiceLoader<Controller> controllers =  ServiceLoader.load(Controller.class);
+        ServiceLoader<Controller> controllers = ServiceLoader.load(Controller.class);
         for (Controller controller : controllers) {
             Class<?> controllerClass = controller.getClass();
             Path pathAnnotation = controllerClass.getAnnotation(Path.class);
             String controllerPath = pathAnnotation.value();
             Method[] methods = controllerClass.getMethods();
-            for(Method method : methods){
+            for (Method method : methods) {
                 Path methodPathAnnotation = method.getAnnotation(Path.class);
-                if(methodPathAnnotation == null){
+                if (methodPathAnnotation == null) {
                     continue;
                 }
                 String methodPath = methodPathAnnotation.value();
                 String requestMappingPath = controllerPath + methodPath;
-                if(handlerMethodInfoMap.containsKey(requestMappingPath)){
+                if (handlerMethodInfoMap.containsKey(requestMappingPath)) {
                     String error = String.format("request path %s already exist!", requestMappingPath);
                     throw new RuntimeException(error);
                 }
                 Set<String> supportedMethods = findSupportedHttpMethods(method);
-                HandlerMethodInfo handlerMethodInfo = new HandlerMethodInfo(requestMappingPath,method,supportedMethods);
-                handlerMethodInfoMap.put(requestMappingPath,handlerMethodInfo);
-                controllerMap.put(requestMappingPath,controller);
+                HandlerMethodInfo handlerMethodInfo = new HandlerMethodInfo(requestMappingPath, method, supportedMethods);
+                handlerMethodInfoMap.put(requestMappingPath, handlerMethodInfo);
+                controllerMap.put(requestMappingPath, controller);
             }
         }
     }
@@ -57,11 +58,11 @@ public class FrontControllerServlet extends HttpServlet {
     private Set<String> findSupportedHttpMethods(Method method) {
         Set<String> set = new LinkedHashSet<>();
         HttpMethod[] annotations = method.getAnnotationsByType(HttpMethod.class);
-        for(HttpMethod annotation : annotations){
+        for (HttpMethod annotation : annotations) {
             set.add(annotation.value());
         }
 
-        if(set.isEmpty()){
+        if (set.isEmpty()) {
             set.addAll(Arrays.asList(HttpMethod.GET, HttpMethod.DELETE, HttpMethod.HEAD,
                     HttpMethod.PUT, HttpMethod.OPTIONS, HttpMethod.POST));
         }
@@ -75,22 +76,23 @@ public class FrontControllerServlet extends HttpServlet {
         String contextPath = req.getContextPath();
         String prefixPath = contextPath;
         String requestMappingPath = StringUtils.substringAfter(requestPath,
-                prefixPath.replaceAll("//","/"));
+                prefixPath.replaceAll("//", "/"));
 
         Controller controller = controllerMap.get(requestMappingPath);
         HandlerMethodInfo handlerMethodInfo = handlerMethodInfoMap.get(requestMappingPath);
 
         try {
-            if (controller instanceof PageController) {
+            if (controller instanceof PageController &&
+                    handlerMethodInfo.getHandlerMethod().getName().equals("execute")) {
                 PageController pageController = (PageController) controller;
-                doPageController(pageController,handlerMethodInfo,requestMappingPath,req,resp);
+                doPageController(pageController, handlerMethodInfo, requestMappingPath, req, resp);
             } else if (controller instanceof RestController) {
                 doResetController((RestController) controller, handlerMethodInfo, requestMappingPath, req, resp);
             }
-        }catch (Throwable throwable){
+        } catch (Throwable throwable) {
             if (throwable.getCause() instanceof IOException) {
                 throw (IOException) throwable.getCause();
-            }else{
+            } else {
                 throw new ServletException(throwable.getMessage());
             }
         }
@@ -107,17 +109,19 @@ public class FrontControllerServlet extends HttpServlet {
             return;
         }
         //通过反射调用 PageController 的 execute 方法
-        String viewPath = pageController.execute(req,response);
+        String viewPath = pageController.execute(req, response);
         if (!viewPath.startsWith("/")) {
             viewPath = "/" + viewPath;
         }
         //通过RequestDispatcher forward request
         RequestDispatcher requestDispatcher = req.getServletContext().getRequestDispatcher(viewPath);
-        requestDispatcher.forward(req,response);
+        requestDispatcher.forward(req, response);
     }
 
     private void doResetController(RestController restController, HandlerMethodInfo handlerMethodInfo,
                                    String requestMappingPath, HttpServletRequest req, HttpServletResponse resp) {
 
     }
+
+
 }

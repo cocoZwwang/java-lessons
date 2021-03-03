@@ -27,9 +27,9 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     
-<!--    <listener>-->
-<!--        <listener-class></listener-class>-->
-<!--    </listener>-->
+    <listener>
+        <listener-class>pers.cocoadel.user.platform.listener.DBConnectionInitializerListener</listener-class>
+    </listener>
 
 
     <filter>

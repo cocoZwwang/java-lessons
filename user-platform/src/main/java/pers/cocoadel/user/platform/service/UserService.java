@@ -6,6 +6,9 @@ public interface UserService {
 
     void save(User user);
 
-    User selectByName(String name);
+    User selectByName(String name,String password);
 
+    boolean signIn(String name, String password);
+
+    void signUp(User user);
 }

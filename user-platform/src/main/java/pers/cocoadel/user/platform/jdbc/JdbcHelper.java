@@ -1,5 +1,6 @@
 package pers.cocoadel.user.platform.jdbc;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import pers.cocoadel.user.platform.function.ThrowableFunction;
 
 import java.beans.BeanInfo;
@@ -24,7 +25,8 @@ public class JdbcHelper {
     /**
      * 通用处理方式
      */
-    private static final Consumer<Throwable> COMMON_EXCEPTION_HANDLER = e -> logger.log(Level.SEVERE, e.getMessage());
+    private static final Consumer<Throwable> COMMON_EXCEPTION_HANDLER = e -> logger.log(Level.SEVERE,
+            ExceptionUtils.getFullStackTrace(e));
 
     /**
      * 数据类型与 ResultSet 方法名映射

@@ -1,5 +1,6 @@
 package pers.cocoadel.user.platform.repository;
 
+import org.apache.commons.lang.StringUtils;
 import pers.cocoadel.user.platform.bean.SingletonBeanContainer;
 import pers.cocoadel.user.platform.domain.User;
 import pers.cocoadel.user.platform.jdbc.JdbcHelper;
@@ -50,6 +51,12 @@ public class DBUserRepository implements UserRepository {
     public User getByNameAndPassword(String userName, String password) {
         String sql = SELECT_SQL + " where name = ? and password = ?";
         return jdbcHelper.queryOne(sql, User.class, userName, password);
+    }
+
+    @Override
+    public User getByName(String userName) {
+        String sql = SELECT_SQL + " where name = ?";
+        return jdbcHelper.queryOne(sql, User.class, userName);
     }
 
     @Override
