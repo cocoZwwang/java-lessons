@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+/**
+ * 由{@link SignInPageController} forward 过来
+ * 登录逻辑的处理
+ */
 @Path("/user")
 public class LoginController implements PageController {
 

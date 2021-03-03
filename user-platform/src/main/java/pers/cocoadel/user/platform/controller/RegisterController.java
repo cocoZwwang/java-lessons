@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+/**
+ * 由{@link SignUpPageController} forward 过来
+ * 注册逻辑的处理
+ */
 @Path("/user")
 public class RegisterController implements PageController {
 

@@ -12,7 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-
+/**
+ * 注册页面
+ * 注册逻辑的处理在 {@link RegisterController}
+ */
 @Path("/user")
 public class SignUpPageController implements PageController {
 
