@@ -1,6 +1,5 @@
 package pers.cocoadel.user.platform.repository;
 
-import org.apache.commons.lang.StringUtils;
 import pers.cocoadel.user.platform.bean.SingletonBeanContainer;
 import pers.cocoadel.user.platform.domain.User;
 import pers.cocoadel.user.platform.jdbc.JdbcHelper;
