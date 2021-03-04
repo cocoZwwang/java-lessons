@@ -5,8 +5,6 @@ import pers.cocoadel.user.platform.domain.User;
 import pers.cocoadel.user.platform.exception.BusinessException;
 import pers.cocoadel.user.platform.service.UserService;
 import pres.cocoadel.web.mvc.controller.PageController;
-
-import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;

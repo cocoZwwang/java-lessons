@@ -53,23 +53,23 @@ public class DBConnectionInitializerListener implements ServletContextListener {
         singletonBeanContainer.clear();
     }
 
-    public static void main(String[] args) {
-        DBConnectionInitializerListener listener = new DBConnectionInitializerListener();
-        listener.contextInitialized(null);
-
-        SingletonBeanContainer container = SingletonBeanContainer.getInstance();
-        UserRepository userRepository = container.get(UserRepository.class);
-
-        User newUser = new User();
-        newUser.setName("cocoAdel");
-        newUser.setEmail("cocoadel@193.com");
-        newUser.setPassword("123");
-        newUser.setPhoneNumber("169334568792");
-        userRepository.save(newUser);
-
-        Collection<User> users = userRepository.getAll();
-        for (User user : users){
-            logger.log(Level.INFO, user.toString());
-        }
-    }
+//    public static void main(String[] args) {
+//        DBConnectionInitializerListener listener = new DBConnectionInitializerListener();
+//        listener.contextInitialized(null);
+//
+//        SingletonBeanContainer container = SingletonBeanContainer.getInstance();
+//        UserRepository userRepository = container.get(UserRepository.class);
+//
+//        User newUser = new User();
+//        newUser.setName("cocoAdel");
+//        newUser.setEmail("cocoadel@193.com");
+//        newUser.setPassword("123");
+//        newUser.setPhoneNumber("169334568792");
+//        userRepository.save(newUser);
+//
+//        Collection<User> users = userRepository.getAll();
+//        for (User user : users){
+//            logger.log(Level.INFO, user.toString());
+//        }
+//    }
 }
