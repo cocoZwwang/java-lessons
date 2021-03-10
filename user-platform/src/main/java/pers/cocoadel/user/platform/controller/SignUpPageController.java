@@ -1,9 +1,5 @@
 package pers.cocoadel.user.platform.controller;
 
-import pers.cocoadel.user.platform.bean.SingletonBeanContainer;
-import pers.cocoadel.user.platform.domain.User;
-import pers.cocoadel.user.platform.exception.BusinessException;
-import pers.cocoadel.user.platform.service.UserService;
 import pres.cocoadel.web.mvc.controller.PageController;
 
 
@@ -16,14 +12,14 @@ import javax.ws.rs.Path;
  * 注册页面
  * 注册逻辑的处理在 {@link RegisterController}
  */
-@Path("/user")
+@Path("")
 public class SignUpPageController implements PageController {
 
 
-    @Path("/signUp")
+    @Path("/")
     @GET
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-        return "sign-up.jsp";
+        return "index.jsp";
     }
 }

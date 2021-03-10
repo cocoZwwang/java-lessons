@@ -1,14 +1,15 @@
 package pers.cocoadel.user.platform.repository;
 
-import pers.cocoadel.user.platform.bean.SingletonBeanContainer;
 import pers.cocoadel.user.platform.domain.User;
-import pers.cocoadel.user.platform.jdbc.JdbcHelper;
+import pers.cocoadel.user.platform.sql.JdbcHelper;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 
 public class DBUserRepository implements UserRepository {
 
-    private final JdbcHelper jdbcHelper;
+    @Resource(name = "bean/JdbcHelper")
+    private JdbcHelper jdbcHelper;
 
     private final static String INSERT_SQL = "INSERT INTO users(name,password,email,phoneNumber) VALUES (?,?,?,?)";
 
@@ -19,8 +20,9 @@ public class DBUserRepository implements UserRepository {
     private final static String DELETE_SQL = "delete from users";
 
     public DBUserRepository() {
-        this.jdbcHelper = SingletonBeanContainer.getInstance().get(JdbcHelper.class);
+
     }
+
 
     @Override
     public boolean save(User user) {

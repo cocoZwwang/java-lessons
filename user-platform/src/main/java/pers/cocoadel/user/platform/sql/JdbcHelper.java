@@ -1,8 +1,9 @@
-package pers.cocoadel.user.platform.jdbc;
+package pers.cocoadel.user.platform.sql;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import pers.cocoadel.user.platform.function.ThrowableFunction;
+import pres.cocoadel.web.mvc.function.ThrowableFunction;
 
+import javax.annotation.Resource;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -41,21 +42,25 @@ public class JdbcHelper {
 
         preparedStatementMethodMappings.put(Long.class, "setLong"); // long
         preparedStatementMethodMappings.put(String.class, "setString"); //
-
-
     }
 
-    private final DBConnectionManager dbConnectionManager;
+    @Resource(name = "bean/DBConnectionManager")
+    private DBConnectionManager dbConnectionManager;
 
     public JdbcHelper(DBConnectionManager dbConnectionManager) {
         this.dbConnectionManager = dbConnectionManager;
     }
 
+    public JdbcHelper() {
+
+    }
+
+
     private Connection getConnection() {
         return dbConnectionManager.getConnection();
     }
 
-    public <T> Collection<T> queryAll(String sql, Class<T> returnType,Object... args) {
+    public <T> Collection<T> queryAll(String sql, Class<T> returnType, Object... args) {
         List<T> result = executeQuery(sql, resultSet -> {
             List<T> list = new ArrayList<>();
             // 如果存在并且游标滚动 // SQLException
@@ -64,13 +69,13 @@ public class JdbcHelper {
                 list.add(t);
             }
             return list;
-        }, COMMON_EXCEPTION_HANDLER,args);
+        }, COMMON_EXCEPTION_HANDLER, args);
         return result == null ? Collections.emptyList() : result;
     }
 
-    public <T> T queryOne(String sql, Class<T> returnType,Object... args) {
+    public <T> T queryOne(String sql, Class<T> returnType, Object... args) {
         return executeQuery(sql, resultSet -> resultSet.next() ? resultSetToPojo(resultSet, returnType) : null,
-                COMMON_EXCEPTION_HANDLER,args);
+                COMMON_EXCEPTION_HANDLER, args);
     }
 
     public int executeUpdate(String sql, Object... args) {
@@ -122,7 +127,7 @@ public class JdbcHelper {
             }
             // Boolean -> boolean
             String methodName = preparedStatementMethodMappings.get(argType);
-            Method method = PreparedStatement.class.getMethod(methodName,int.class, wrapperType);
+            Method method = PreparedStatement.class.getMethod(methodName, int.class, wrapperType);
             method.invoke(preparedStatement, i + 1, arg);
         }
         return preparedStatement;

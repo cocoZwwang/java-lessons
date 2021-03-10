@@ -1,6 +1,7 @@
 package pres.cocoadel.web.mvc;
 
 import org.apache.commons.lang.StringUtils;
+import pres.cocoadel.web.mvc.context.ComponentContext;
 import pres.cocoadel.web.mvc.controller.Controller;
 import pres.cocoadel.web.mvc.controller.PageController;
 import pres.cocoadel.web.mvc.controller.RestController;
@@ -25,12 +26,19 @@ public class FrontControllerServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-//        super.init(config);
-        initHandlerMethods();
+        config.getServletContext().log("FrontControllerServlet init....");
+        initHandlerMethods(config);
     }
 
-    private void initHandlerMethods() {
+    private void initHandlerMethods(ServletConfig servletConfig) {
         ServiceLoader<Controller> controllers = ServiceLoader.load(Controller.class);
+        ComponentContext componentContext = (ComponentContext) servletConfig.getServletContext()
+                .getAttribute(ComponentContext.CONTEXT_NAME);
+        controllers.forEach(controller -> componentContext.injectComponent(controller, controller.getClass()));
+        initHandlerMethods(controllers);
+    }
+
+    private void initHandlerMethods(Iterable<Controller> controllers) {
         for (Controller controller : controllers) {
             Class<?> controllerClass = controller.getClass();
             Path pathAnnotation = controllerClass.getAnnotation(Path.class);

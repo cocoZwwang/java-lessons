@@ -1,4 +1,4 @@
-package pers.cocoadel.user.platform.function;
+package pres.cocoadel.web.mvc.function;
 
 @FunctionalInterface
 public interface ThrowableFunction<T, R> {

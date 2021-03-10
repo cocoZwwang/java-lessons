@@ -30,7 +30,7 @@ public class CharsetEncodingFilter implements Filter {
             httpRequest.setCharacterEncoding(encoding);
             httpResponse.setCharacterEncoding(encoding);
             servletContext.log("当前编码已设置为：" + encoding);
-            // CharsetEncodingFilter -> FrontControllerServlet -> forward -> index.jsp
+            // CharsetEncodingFilter -> FrontControllerServlet -> forward -> hello-world.jsp
         }
 
         // 执行过滤链

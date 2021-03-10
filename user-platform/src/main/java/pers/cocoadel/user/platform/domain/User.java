@@ -1,5 +1,14 @@
 package pers.cocoadel.user.platform.domain;
 
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+import pers.cocoadel.user.platform.validator.bean.validation.UserValid;
+
+import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.util.Objects;
 
 /**
@@ -7,16 +16,25 @@ import java.util.Objects;
  *
  * @since 1.0
  */
+@UserValid
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column
     private String name;
 
+    @Column
     private String password;
 
+    @Column
     private String email;
 
+    @Column
     private String phoneNumber;
 
     public Long getId() {

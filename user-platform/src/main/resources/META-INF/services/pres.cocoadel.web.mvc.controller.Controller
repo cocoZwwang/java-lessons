@@ -1,5 +1,5 @@
 pers.cocoadel.user.platform.controller.HelloController
 pers.cocoadel.user.platform.controller.SignInPageController
-pers.cocoadel.user.platform.controller.SignUpPageController
+#pers.cocoadel.user.platform.controller.SignUpPageController
 pers.cocoadel.user.platform.controller.RegisterController
 pers.cocoadel.user.platform.controller.LoginController

@@ -5,6 +5,14 @@
          http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          metadata-complete="true" version="2.5">
 
+    <listener>
+        <listener-class>pres.cocoadel.web.mvc.listener.DBConnectionInitializerListener</listener-class>
+    </listener>
+
+<!--    <listener>-->
+<!--        <listener-class>pres.cocoadel.web.mvc.listener.TestListener</listener-class>-->
+<!--    </listener>-->
+
     <servlet-mapping>
         <servlet-name>default</servlet-name>
         <url-pattern>*.css</url-pattern>
@@ -27,9 +35,7 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     
-    <listener>
-        <listener-class>pers.cocoadel.user.platform.listener.DBConnectionInitializerListener</listener-class>
-    </listener>
+
 
 
     <filter>

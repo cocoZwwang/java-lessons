@@ -1,27 +1,35 @@
 package pers.cocoadel.user.platform.controller;
 
-import pers.cocoadel.user.platform.bean.SingletonBeanContainer;
+import javafx.util.Builder;
+import org.apache.commons.collections.CollectionUtils;
 import pers.cocoadel.user.platform.domain.User;
 import pers.cocoadel.user.platform.exception.BusinessException;
 import pers.cocoadel.user.platform.service.UserService;
 import pres.cocoadel.web.mvc.controller.PageController;
+
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.*;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 由{@link SignUpPageController} forward 过来
  * 注册逻辑的处理
  */
-@Path("/user")
+@Path("")
 public class RegisterController implements PageController {
 
-    private final UserService userService;
+    @Resource(name = "bean/UserService")
+    private UserService userService;
 
-    public RegisterController() {
-        userService = SingletonBeanContainer.getInstance().get(UserService.class);
-    }
+    @Resource(name = "bean/Validator")
+    private Validator validator;
+
+    private final AtomicLong idCreator = new AtomicLong();
 
     @Path("/register")
     @POST
@@ -30,22 +38,34 @@ public class RegisterController implements PageController {
         try {
             String email = request.getParameter("email");
             String password = request.getParameter("password");
+            String phoneNumber = request.getParameter("phoneNumber");
 
             User user = new User();
+            user.setId(idCreator.incrementAndGet());
             user.setName(email);
             user.setEmail(email);
             user.setPassword(password);
-            user.setPhoneNumber("125635489654");
+            user.setPhoneNumber(phoneNumber);
+
+            // 校验结果
+            Set<ConstraintViolation<User>> violations = validator.validate(user);
+            ConstraintViolation<User> violation = violations.stream().findFirst().orElse(null);
+            if (violation != null) {
+                throw new BusinessException(violation.getMessage());
+            }
+
             System.out.println(user.toString());
             userService.signUp(user);
             System.out.println("注册成功！");
             return "register-success.jsp";
         } catch (Throwable e) {
-            if (e instanceof BusinessException) {
+            if(e instanceof BusinessException){
                 request.setAttribute("error",e.getMessage());
+            }else {
+                request.setAttribute("error","服务器错误！");
             }
             e.printStackTrace();
-            return "sign-up.jsp";
+            return "index.jsp";
         }
     }
 }

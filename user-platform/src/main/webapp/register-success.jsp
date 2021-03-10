@@ -7,7 +7,7 @@
 	<div class="container-lg">
 		<h1>注册成功！！</h1>
 		<br/>
-		<form class="form-to-signIn" action="signIn" method="GET">
+		<form class="form-to-signIn" action="login-form.jsp" method="GET">
 		    <button class="btn btn-lg btn-primary btn-block" type="submit">跳转登录</button>
 		</from>
 

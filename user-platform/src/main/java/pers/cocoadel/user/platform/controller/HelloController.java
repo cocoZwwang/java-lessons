@@ -14,6 +14,6 @@ public class HelloController implements PageController {
     @Path("/world")
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-        return "index.jsp";
+        return "hello-world.jsp";
     }
 }
