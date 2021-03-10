@@ -23,11 +23,13 @@ public class User {
 
     @Id
 //    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @Min(value = 1,message = "id 必须大于0")
     private Long id;
 
     @Column
     private String name;
 
+//    @Length(min = 6,max = 32,message = "密码长度必须在 6-32 位之间")
     @Column
     private String password;
 
