@@ -12,6 +12,7 @@
 
 - 通过依赖注入实现用户注册
   - 通过首页注册/登录：localhost:8080
+- UserRepository 的实现有 DBUserRepository（JDBC） 换成了 DBJPAUserRepository（JPA）
 - 添加注册时候用户信息校验
   - id 必须大于 0，这个需要在代码 pers.cocoadel.user.platform.controller.RegisterController 中手动修改测试，因为页面没有id输入框
   - 密码长度必须 6 - 32 之间
