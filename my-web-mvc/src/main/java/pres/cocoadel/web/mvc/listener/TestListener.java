@@ -1,6 +1,9 @@
 package pres.cocoadel.web.mvc.listener;
 
 import pres.cocoadel.web.mvc.context.ComponentContext;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
@@ -26,6 +29,18 @@ public class TestListener implements ServletContextListener {
 //        DBConnectionManager connectionManager =
 //                context.getComponent("bean/DBConnectionManager", DBConnectionManager.class);
 //        connectionManager.init();
+        testPropertiesFromJNDI(context,servletContextEvent.getServletContext());
+        testPropertiesFromServletConfig(servletContextEvent.getServletContext());
+    }
+
+    private void testPropertiesFromJNDI(ComponentContext componentContext, ServletContext servletContext){
+        Integer maxValue = componentContext.getComponent("maxValue", Integer.class);
+        servletContext.log("++++++++++++++maxValue: " + maxValue);
+    }
+
+    private void testPropertiesFromServletConfig(ServletContext servletContext) {
+        String appName = servletContext.getInitParameter("application.name");
+        servletContext.log("------------application.name: " + appName);
     }
 
     @Override

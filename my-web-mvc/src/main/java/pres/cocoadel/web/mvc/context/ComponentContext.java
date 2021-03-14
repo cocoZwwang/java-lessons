@@ -12,6 +12,7 @@ import javax.servlet.ServletContext;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.logging.Level;
@@ -27,7 +28,10 @@ public class ComponentContext {
     private static final Logger logger = Logger.getLogger(CONTEXT_NAME);
 
     //这里不需要考虑线程安全问题，因为这里是由 ServletListener contextInitialized 进行加载，这是一个单线程的过程不需要考虑线程安全问题
-    private Map<String, Object> componentMap;
+    private final Map<String, Object> componentMap = new HashMap<>();
+    ;
+
+    private final Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
 
     private Context envContext;
 
@@ -50,6 +54,7 @@ public class ComponentContext {
         injectAnnotationSet.add(Resource.class);
         initEnvContext();
         initComponents();
+        initializeComponentInfo();
         initializedComponents();
     }
 
@@ -69,24 +74,23 @@ public class ComponentContext {
 
 
     public <T> T getComponent(String name, Class<T> type) {
-        Object obj = lookupComponent(name);
+        Object obj = componentMap.get(name);
         return obj == null ? null : type.cast(obj);
     }
 
-    protected Object lookupComponent(String name) {
-        return componentMap.get(name);
+    protected <T> T lookupComponent(String name, Class<T> type) {
+        return executeInContext(context -> {
+            Object obj = context.lookup(name);
+            return obj == null ? null : type.cast(obj);
+        });
     }
 
     private void initComponents() {
         List<String> componentNames = findAllComponentNames();
-        componentMap = new HashMap<>();
         for (String name : componentNames) {
-            try {
-                Object bean = envContext.lookup(name);
+            Object bean = lookupComponent(name, Object.class);
+            if (bean != null) {
                 componentMap.put(name, bean);
-            } catch (NamingException e) {
-                String msg = String.format("look up bean for name %s failure: %s", name, ExceptionUtils.getFullStackTrace(e));
-                logger.log(Level.SEVERE, msg);
             }
         }
     }
@@ -110,13 +114,33 @@ public class ComponentContext {
                 if (Context.class.isAssignableFrom(clazz)) {
                     result.addAll(findComponentNames(pair.getName()));
                 } else {
-                    String beanName = pair.getName().startsWith("/") ?
+                    String beanName = root.startsWith("/") ?
                             pair.getName() : root + "/" + pair.getName();
                     result.add(beanName);
                 }
             }
             return result;
         });
+    }
+
+    protected void initializeComponentInfo() {
+        for (String componentName : componentMap.keySet()) {
+            Object component = componentMap.get(componentName);
+            Class<?> clazz = component.getClass();
+            ComponentInfo componentInfo = new ComponentInfo();
+            componentInfo.setComponentName(componentName);
+            Method[] methods = clazz.getMethods();
+            for (Method method : methods) {
+                if (method.isAnnotationPresent(PostConstruct.class)) {
+                    componentInfo.addPostConstructMethod(method);
+                }
+
+                if (method.isAnnotationPresent(PreDestroy.class)) {
+                    componentInfo.addPreDestroyMethods(method);
+                }
+            }
+            componentInfoMap.put(componentName, componentInfo);
+        }
     }
 
 
@@ -147,7 +171,7 @@ public class ComponentContext {
                     Field field = pair.getKey();
                     Annotation annotation = pair.getValue();
                     String injectName = getInjectNameFromAnnotation(annotation);
-                    Object injectBean = lookupComponent(injectName);
+                    Object injectBean = getComponent(injectName, Object.class);
                     if (injectBean != null) {
                         field.setAccessible(true);
                         try {
@@ -179,35 +203,30 @@ public class ComponentContext {
     }
 
     private void processPostConstruct() {
-        componentMap.values().forEach(component -> processPostConstruct(component, component.getClass()));
+        componentInfoMap.values().forEach(componentInfo -> {
+            Set<Method> postConstructMethods = componentInfo.getPostConstructMethods();
+            postConstructMethods.forEach(method -> {
+                try {
+                    method.invoke(getComponent(componentInfo.getComponentName(), Object.class));
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    logger.log(Level.SEVERE, ExceptionUtils.getFullStackTrace(e));
+                }
+            });
+        });
     }
 
-    private void processPostConstruct(Object component, Class<?> clazz) {
-        Stream.of(clazz.getMethods())
-                .filter(method -> method.isAnnotationPresent(PostConstruct.class))
-                .forEach(method -> {
-                    try {
-                        method.invoke(component);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        logger.log(Level.SEVERE, ExceptionUtils.getFullStackTrace(e));
-                    }
-                });
-    }
 
-    private void processPreDestroy(){
-        componentMap.values().forEach(component -> processPreDestroy(component, component.getClass()));
-    }
-
-    private void processPreDestroy(Object component, Class<?> clazz) {
-        Stream.of(clazz.getMethods())
-                .filter(method -> method.isAnnotationPresent(PreDestroy.class))
-                .forEach(method ->{
-                    try {
-                        method.invoke(component);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        logger.log(Level.SEVERE, ExceptionUtils.getFullStackTrace(e));
-                    }
-                });
+    private void processPreDestroy() {
+        componentInfoMap.values().forEach(componentInfo -> {
+            Set<Method> postConstructMethods = componentInfo.getPreDestroyMethods();
+            postConstructMethods.forEach(method -> {
+                try {
+                    method.invoke(getComponent(componentInfo.getComponentName(), Object.class));
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    logger.log(Level.SEVERE, ExceptionUtils.getFullStackTrace(e));
+                }
+            });
+        });
     }
 
     private <R> R executeInContext(ThrowableFunction<Context, R> function) {
